@@ -12,97 +12,107 @@ source:
 
 build:
   number: 0
+  missing_dso_whitelist:     # [s390x]
+    - "$RPATH/ld64.so.1"     # [s390x]
 
 requirements:
   build:
     - {{ compiler('c') }}
-    - {{ stdlib('c') }}
     - {{ compiler('cxx') }}
     - make                   # [unix]
     - wget                   # [unix]
     - unzip                  # [unix]
+    - m2-patch               # [win]
+    - patch                  # [not win]
   host:
   run:
 
 outputs:
   - name: libmpdec
     files:
-      - lib/libmpdec.so.*
-      - lib/libmpdec.*.dylib
-      - Library/bin/libmpdec-*.dll
+      - lib/libmpdec.so.*           # [linux]
+      - lib/libmpdec.*.dylib        # [osx]
+      - Library/bin/libmpdec-*.dll  # [win]
     requirements:
       build:
         - {{ compiler('c') }}
-        - {{ stdlib('c') }}
     test:
       commands:
-        - test -f ${PREFIX}/lib/libmpdec.so.4     # [linux]
-        - test -f ${PREFIX}/lib/libmpdec.4.dylib  # [osx]
-        - if not exist %LIBRARY_BIN%\libmpdec-4.dll exit 1   # [win]
+        - test -f ${PREFIX}/lib/libmpdec.so.{{ version[0] }}               # [linux]
+        - test -f ${PREFIX}/lib/libmpdec.so.{{ version }}                  # [linux]
+        - test -f ${PREFIX}/lib/libmpdec.{{ version[0] }}.dylib            # [osx]
+        - if not exist %LIBRARY_BIN%\libmpdec-{{ version[0] }}.dll exit 1  # [win]
 
   - name: libmpdecxx
     files:
-      - lib/libmpdec++.so.*
-      - lib/libmpdec++.*.dylib
-      - Library/bin/libmpdec++-*.dll
+      - lib/libmpdec++.so.*           # [linux]
+      - lib/libmpdec++.*.dylib        # [osx]
+      - Library/bin/libmpdec++-*.dll  # [win]
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("libmpdec", exact=True) }}
       run:
         - {{ pin_subpackage("libmpdec", exact=True) }}
     test:
       commands:
-        - test -f ${PREFIX}/lib/libmpdec++.so.4     # [linux]
-        - test -f ${PREFIX}/lib/libmpdec++.4.dylib  # [osx]
-        - if not exist %LIBRARY_BIN%\libmpdec++-4.dll exit 1   # [win]
+        - test -f ${PREFIX}/lib/libmpdec++.so.{{ version[0] }}               # [linux]
+        - test -f ${PREFIX}/lib/libmpdec++.so.{{ version }}                  # [linux]
+        - test -f ${PREFIX}/lib/libmpdec++.{{ version[0] }}.dylib            # [osx]
+        - if not exist %LIBRARY_BIN%\libmpdec++-{{ version[0] }}.dll exit 1  # [win]
 
   - name: libmpdec-devel
     build:
       run_exports:
         - {{ pin_subpackage("libmpdec") }}
     files:
-      - lib/libmpdec.so
-      - lib/libmpdec.dylib
-      - lib/pkgconfig/libmpdec.pc
-      - include/mpdecimal.h
-      - Library/lib/mpdec.lib
-      - Library/include/mpdecimal.h
+      - lib/libmpdec.so              # [linux]
+      - lib/libmpdec.dylib           # [osx]
+      - lib/pkgconfig/libmpdec.pc    # [not win]
+      - include/mpdecimal.h          # [not win]
+      - Library/lib/mpdec.lib        # [win]
+      - Library/include/mpdecimal.h  # [win]
     requirements:
       - {{ pin_subpackage("libmpdec", exact=True) }}
     test:
       commands:
-        - test -f ${PREFIX}/lib/libmpdec.so     # [linux]
-        - test -f ${PREFIX}/lib/libmpdec.dylib  # [osx]
-        - if not exist %LIBRARY_LIB%\mpdec.lib exit 1   # [win]
+        - test -f ${PREFIX}/lib/libmpdec.so            # [linux]
+        - test -f ${PREFIX}/lib/libmpdec.dylib         # [osx]
+        - if not exist %LIBRARY_LIB%\mpdec.lib exit 1  # [win]
 
   - name: libmpdecxx-devel
     build:
       run_exports:
         - {{ pin_subpackage("libmpdecxx") }}
     files:
-      - lib/libmpdec++.so
-      - lib/libmpdec++.dylib
-      - lib/pkgconfig/libmpdec++.pc
-      - include/decimal.hh
-      - Library/lib/mpdec++.lib
-      - Library/include/decimal.hh
+      - lib/libmpdec++.so            # [linux]
+      - lib/libmpdec++.dylib         # [osx]
+      - lib/pkgconfig/libmpdec++.pc  # [not win]
+      - include/decimal.hh           # [not win]
+      - Library/lib/mpdec++.lib      # [win]
+      - Library/include/decimal.hh   # [win]
     requirements:
       - {{ pin_subpackage("libmpdecxx", exact=True) }}
       - {{ pin_subpackage("libmpdec-devel", exact=True) }}
     test:
       commands:
-        - test -f ${PREFIX}/lib/libmpdec++.so     # [linux]
-        - test -f ${PREFIX}/lib/libmpdec++.dylib  # [osx]
-        - if not exist %LIBRARY_LIB%\mpdec++.lib exit 1   # [win]
+        - test -f ${PREFIX}/lib/libmpdec++.so            # [linux]
+        - test -f ${PREFIX}/lib/libmpdec++.dylib         # [osx]
+        - if not exist %LIBRARY_LIB%\mpdec++.lib exit 1  # [win]
 
 about:
   home: https://www.bytereef.org/mpdecimal/index.html
-  summary: A package for correctly-rounded arbitrary precision decimal floating point arithmetic
   license: BSD-2-Clause
   license_file: COPYRIGHT.txt
+  license_family: BSD
+  summary: A package for correctly-rounded arbitrary precision decimal floating point arithmetic
+  description: |
+    libmpdec is a fast C library for correctly-rounded arbitrary precision decimal floating point 
+    arithmetic. It is a complete implementation of Mike Cowlishaw/IBM's 
+    General Decimal Arithmetic Specification.
+  doc_url: https://www.bytereef.org/mpdecimal/index.html
+  dev_url: https://www.bytereef.org/mpdecimal/download.html
 
 extra:
   recipe-maintainers:
