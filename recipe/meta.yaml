@@ -16,7 +16,8 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - {{ stdlib('c') }}
+    # Not needed, breaks build
+    # - {{ stdlib('c') }}
     - {{ compiler('cxx') }}
     - make                   # [unix]
     - wget                   # [unix]
@@ -33,7 +34,8 @@ outputs:
     requirements:
       build:
         - {{ compiler('c') }}
-        - {{ stdlib('c') }}
+        # Not needed, breaks build
+        # - {{ stdlib('c') }}
     test:
       commands:
         - test -f ${PREFIX}/lib/libmpdec.so.4     # [linux]
@@ -48,7 +50,8 @@ outputs:
     requirements:
       build:
         - {{ compiler('cxx') }}
-        - {{ stdlib('c') }}
+        # Not needed, breaks build
+        # - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage("libmpdec", exact=True) }}
       run:
