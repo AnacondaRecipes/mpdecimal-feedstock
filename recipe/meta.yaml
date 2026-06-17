@@ -1,4 +1,4 @@
-{% set version = "4.0.0" %}
+{% set version = "4.0.1" %}
 
 package:
   name: mpdecimal
@@ -6,24 +6,21 @@ package:
 
 source:
   url: https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-{{ version }}.tar.gz
-  sha256: 942445c3245b22730fd41a67a7c5c231d11cb1b9936b9c0f76334fb7d0b4468c
+  sha256: 96d33abb4bb0070c7be0fed4246cd38416188325f820468214471938545b1ac8
   patches:
     - fix-dll-name.diff
 
 build:
   number: 0
-  missing_dso_whitelist:     # [s390x]
-    - "$RPATH/ld64.so.1"     # [s390x]
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - make                   # [unix]
     - wget                   # [unix]
     - unzip                  # [unix]
-    - m2-patch               # [win]
-    - patch                  # [not win]
   host:
   run:
 
@@ -35,6 +32,7 @@ outputs:
       - Library/bin/libmpdec-*.dll  # [win]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('c') }}
     test:
       commands:
@@ -50,6 +48,7 @@ outputs:
       - Library/bin/libmpdec++-*.dll  # [win]
     requirements:
       build:
+        - {{ stdlib('c') }}
         - {{ compiler('cxx') }}
       host:
         - {{ pin_subpackage("libmpdec", exact=True) }}
@@ -74,7 +73,12 @@ outputs:
       - Library/lib/mpdec.lib        # [win]
       - Library/include/mpdecimal.h  # [win]
     requirements:
-      - {{ pin_subpackage("libmpdec", exact=True) }}
+      build:
+        - {{ stdlib('c') }}
+      host:
+        - {{ pin_subpackage("libmpdec", exact=True) }}
+      run:
+        - {{ pin_subpackage("libmpdec", exact=True) }}
     test:
       commands:
         - test -f ${PREFIX}/lib/libmpdec.so            # [linux]
@@ -93,8 +97,14 @@ outputs:
       - Library/lib/mpdec++.lib      # [win]
       - Library/include/decimal.hh   # [win]
     requirements:
-      - {{ pin_subpackage("libmpdecxx", exact=True) }}
-      - {{ pin_subpackage("libmpdec-devel", exact=True) }}
+      build:
+        - {{ stdlib('c') }}
+      host:
+        - {{ pin_subpackage("libmpdec-devel", exact=True) }}
+        - {{ pin_subpackage("libmpdecxx", exact=True) }}
+      run:
+        - {{ pin_subpackage("libmpdec-devel", exact=True) }}
+        - {{ pin_subpackage("libmpdecxx", exact=True) }}
     test:
       commands:
         - test -f ${PREFIX}/lib/libmpdec++.so            # [linux]

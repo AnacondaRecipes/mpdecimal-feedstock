@@ -1,7 +1,14 @@
 @ECHO off
 
 set dbg=0
-set machine=x64
+
+REM Detect target architecture - ARM64 needs ansi64 (pure C, no x64 MASM assembly)
+REM Check target_platform first (conda-build), then fall back to processor arch
+if "%target_platform%"=="win-arm64" (
+    set machine=ansi64
+) else (
+    set machine=x64
+)
 
 mkdir %LIBRARY_BIN%
 mkdir %LIBRARY_LIB%
